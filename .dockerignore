@@ -1,0 +1,10 @@
+.env
+secrets/
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+data/**
+!data/stage1/
+!data/stage1/runs/
+tests/

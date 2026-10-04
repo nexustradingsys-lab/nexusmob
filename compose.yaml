@@ -1,0 +1,47 @@
+services:
+  nexus-mobile:
+    build: .
+    image: nexus-mobile:local
+    container_name: nexus-mobile
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      HOST: 0.0.0.0
+      PORT: ${PORT:-8000}
+      STAGE1_ARCHIVE_PATH: /var/lib/nexus-mobile/stage1/runs
+      MOBILE_AUTH_SESSION_PATH: /var/lib/nexus-mobile/auth/zerodha_session.json
+    secrets:
+      - kite_api_key
+      - kite_api_secret
+    ports:
+      - "${NEXUS_BIND_ADDRESS:-127.0.0.1}:${HOST_PORT:-8000}:${PORT:-8000}"
+    volumes:
+      - stage1-archives:/var/lib/nexus-mobile/stage1/runs
+      - kite-auth:/var/lib/nexus-mobile/auth
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; from urllib.request import urlopen; urlopen('http://127.0.0.1:'+os.getenv('PORT','8000')+'/mobile', timeout=3).read(1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+secrets:
+  kite_api_key:
+    file: ${KITE_API_KEY_FILE:-secrets/kite_api_key.txt}
+  kite_api_secret:
+    file: ${KITE_API_SECRET_FILE:-secrets/kite_api_secret.txt}
+
+volumes:
+  stage1-archives:
+    name: nexus-mobile-stage1-archives
+  kite-auth:
+    name: nexus-mobile-kite-auth

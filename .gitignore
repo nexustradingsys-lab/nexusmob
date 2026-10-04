@@ -1,0 +1,12 @@
+.env
+secrets/
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+nexus_mobile.egg-info/
+build/
+dist/
+data/auth/**
+data/stage1/runs/**
+
